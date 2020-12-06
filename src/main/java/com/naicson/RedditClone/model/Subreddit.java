@@ -12,7 +12,12 @@ import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.validation.constraints.NotBlank;
 
+import lombok.Builder;
+import lombok.Data;
+
 @Entity
+@Builder
+@Data
 public class Subreddit {
 	
 	@Id
@@ -31,6 +36,8 @@ public class Subreddit {
 	public Subreddit() {
 		
 	}
+	
+	
 
 	public Long getId() {
 		return id;
@@ -79,6 +86,21 @@ public class Subreddit {
 	public void setUser(User user) {
 		this.user = user;
 	}
+
+
+
+	public Subreddit(Long id, @NotBlank(message = "O nome da Comunidade não pode ser vazio") String name,
+			@NotBlank(message = "A Descrição não pode ser vazia!") String description, List<Post> posts,
+			Instant createdDate, User user) {
+		super();
+		this.id = id;
+		this.name = name;
+		this.description = description;
+		this.posts = posts;
+		this.createdDate = createdDate;
+		this.user = user;
+	}
+
 	
 	
 }

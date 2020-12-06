@@ -19,13 +19,13 @@ import com.naicson.RedditClone.dto.AuthenticationResponse;
 import com.naicson.RedditClone.dto.LoginRequest;
 import com.naicson.RedditClone.dto.RegisterRequest;
 import com.naicson.RedditClone.exceptions.SpringRedditException;
-import com.naicson.RedditClone.model.NotificationEmail;
+import com.naicson.RedditClone.model.NotificationEmail;	
 import com.naicson.RedditClone.model.User;
 import com.naicson.RedditClone.model.VerificationToken;
 import com.naicson.RedditClone.repository.UserRepository;
 import com.naicson.RedditClone.repository.VerificationTokenRepository;
 //import com.naicson.RedditClone.security.JwtProvider;
-import com.naicson.RedditClone.security.JwtProvider;
+import com.naicson.RedditClone.security.JwtUtils;
 
 //import io.jsonwebtoken.JwtParser;
 import jdk.jshell.spi.ExecutionControl.UserException;
@@ -45,7 +45,7 @@ public class AuthService {
 	@Autowired
 	private AuthenticationManager authManeger;
 	@Autowired
-	private JwtProvider jwtProvider;
+	private JwtUtils jwtProvider;
 	
 	@Transactional
 	public void signup(RegisterRequest registerRequest) {
@@ -66,6 +66,7 @@ public class AuthService {
 		
 	}
 
+	
 	private String generationVerificationToken(User user) {
 		
 		String verificationToken = UUID.randomUUID().toString();
@@ -85,7 +86,7 @@ public class AuthService {
 	
 	}
 	
-
+	
 	private void fecthUserAsEnable(VerificationToken verificationToken) {
 		@NotBlank(message = "Nome do usuário é obrigatório!")
 		String username = verificationToken.getUser().getUsername();
@@ -99,7 +100,7 @@ public class AuthService {
 		Authentication auth =  authManeger.authenticate(new UsernamePasswordAuthenticationToken(loginRequest.getUsername(),
 				loginRequest.getPassword()));
 		SecurityContextHolder.getContext().setAuthentication(auth);
-		String token = jwtProvider.generateToken(auth);
+		String token = jwtProvider.generateJwtToken(auth);
 		return new AuthenticationResponse(token, loginRequest.getUsername());
 		
 	}

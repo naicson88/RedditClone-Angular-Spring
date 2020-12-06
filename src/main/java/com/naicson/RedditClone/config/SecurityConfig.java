@@ -24,39 +24,46 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 public class SecurityConfig extends WebSecurityConfigurerAdapter{
 	
 	@Autowired
-	private UserDetailsService userDetailService;
-	
-	@Bean(BeanIds.AUTHENTICATION_MANAGER)
+	com.naicson.RedditClone.service.UserDetailsServiceImpl userDetailsService;
+
+	@Autowired
+	private com.naicson.RedditClone.security.AuthEntryPointJwt unauthorizedHandler;
+
+	@Bean
+	public com.naicson.RedditClone.security.AuthTokenFilter authenticationJwtTokenFilter() {
+		return new com.naicson.RedditClone.security.AuthTokenFilter();
+	}
+
 	@Override
-	public AuthenticationManager authenticationManager() throws Exception {
+	public void configure(AuthenticationManagerBuilder authenticationManagerBuilder) throws Exception {
+		authenticationManagerBuilder.userDetailsService(userDetailsService).passwordEncoder(passwordEncoder());
+	}
+
+	@Bean
+	@Override
+	public AuthenticationManager authenticationManagerBean() throws Exception {
 		return super.authenticationManagerBean();
 	}
-	
-	public SecurityConfig(@Lazy UserDetailsService userDetailService) {
-		this.userDetailService = userDetailService;
+
+	@Bean
+	public PasswordEncoder passwordEncoder() {
+		return new BCryptPasswordEncoder();
 	}
 
 	@Override
-	public void configure(HttpSecurity httpSecurity) throws Exception {
-		httpSecurity.csrf().disable()
-		.authorizeRequests()
-		.antMatchers("/api/auth/**")
-		.permitAll()
-		.anyRequest()
-		.authenticated();
-	}
+	protected void configure(HttpSecurity http) throws Exception {
+		http.cors().and().csrf().disable()
+			.exceptionHandling().authenticationEntryPoint(unauthorizedHandler).and()
+			.sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS).and()
+			.authorizeRequests().antMatchers("/api/auth/**").permitAll()
+			.antMatchers("/api/test/**").permitAll()
+			
+			.anyRequest().authenticated()
+			.and().formLogin().disable();
 
-	
-	@Autowired
-	public void configureGlobal(AuthenticationManagerBuilder authMan) throws Exception {
-		authMan.userDetailsService(userDetailService)
-		.passwordEncoder(passwordEncoder());
+		http.addFilterBefore(authenticationJwtTokenFilter(), UsernamePasswordAuthenticationFilter.class);
 	}
 	
-	@Bean
-	PasswordEncoder passwordEncoder() {
-		return new  BCryptPasswordEncoder();
-	}
 	
 	
 }

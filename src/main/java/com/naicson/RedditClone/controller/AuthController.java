@@ -34,8 +34,7 @@ public class AuthController {
 		authService.verifyAccount(token);
 		return new ResponseEntity<>("Conta ativada com sucesso!", HttpStatus.OK);
 	}
-	
-	
+		
 	@PostMapping("/login")
 	public AuthenticationResponse login(@RequestBody LoginRequest loginRequest) {
 		return authService.login(loginRequest);
